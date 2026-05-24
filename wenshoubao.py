@@ -68,8 +68,8 @@ def _program_runtime_dir() -> Path:
 WORKSPACE_ROOT = _workspace_root()
 PROGRAM_DIR = Path(__file__).resolve().parent
 PROGRAM_RUNTIME_DIR = _program_runtime_dir()
-OUTPUT_DIR = PROGRAM_RUNTIME_DIR / "稳收宝输出"
-CACHE_DIR = WORKSPACE_ROOT / "稳收宝缓存"
+OUTPUT_DIR = PROGRAM_RUNTIME_DIR / "output"
+CACHE_DIR = PROGRAM_RUNTIME_DIR / "winout"
 LOCAL_RESEARCH_DIR = WORKSPACE_ROOT / "fund_research"
 ASSETS_DIR = PROGRAM_DIR / "assets"
 APP_ICON_RELATIVE = Path("assets") / "win.ico"
@@ -1385,9 +1385,9 @@ def timestamped_sibling(path: Path) -> Path:
 def fallback_output_dirs() -> list[Path]:
     dirs: list[Path] = []
     if getattr(sys, "frozen", False):
-        dirs.append(Path(sys.executable).resolve().parent / "稳收宝输出")
+        dirs.append(Path(sys.executable).resolve().parent / "output")
     else:
-        dirs.append(PROGRAM_DIR / "稳收宝输出")
+        dirs.append(PROGRAM_DIR / "output")
     base = os.environ.get("LOCALAPPDATA")
     if base:
         dirs.append(Path(base) / "WenShouBao" / "output")

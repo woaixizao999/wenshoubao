@@ -6,6 +6,11 @@ __pycache__/
 build/
 
 # Local run outputs and cached public data
+output/
+winout/
+dist/output/
+dist/winout/
+dist/稳收宝输出/
 稳收宝输出/
 稳收宝缓存/
 fund_research/

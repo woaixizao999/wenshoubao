@@ -16,13 +16,14 @@
 
 输出文件会生成在：
 
-- 程序所在目录下的 `稳收宝输出` 文件夹
-- 例如直接运行 `dist\win.exe` 时，输出会生成在 `dist\稳收宝输出`
+- 程序所在目录下的 `output` 文件夹
+- 例如直接运行 `dist\win.exe` 时，输出会生成在 `dist\output`
 - 主要文件包括：`前十名.csv`、`完整评分表.xlsx`、`剔除清单.csv`、`稳收宝报告.html`、`运行日志.txt`
 
 缓存文件会生成在：
 
-- `E:\codex\investment\稳收宝缓存`
+- 程序所在目录下的 `winout` 文件夹
+- 例如直接运行 `dist\win.exe` 时，缓存会生成在 `dist\winout`
 
 ## 命令行调试
 
