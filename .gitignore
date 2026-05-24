@@ -1,0 +1,22 @@
+# Python/runtime cache
+__pycache__/
+*.py[cod]
+
+# PyInstaller build cache
+build/
+
+# Local run outputs and cached public data
+稳收宝输出/
+稳收宝缓存/
+fund_research/
+
+# Temporary/debug packaging specs
+wenshoubao_debug.spec
+稳收宝.spec
+稳收宝_新版.spec
+
+# Editor and OS noise
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
