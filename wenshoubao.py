@@ -59,9 +59,16 @@ def _workspace_root() -> Path:
     return Path(__file__).resolve().parent.parent
 
 
+def _program_runtime_dir() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent
+
+
 WORKSPACE_ROOT = _workspace_root()
 PROGRAM_DIR = Path(__file__).resolve().parent
-OUTPUT_DIR = WORKSPACE_ROOT / "稳收宝输出"
+PROGRAM_RUNTIME_DIR = _program_runtime_dir()
+OUTPUT_DIR = PROGRAM_RUNTIME_DIR / "稳收宝输出"
 CACHE_DIR = WORKSPACE_ROOT / "稳收宝缓存"
 LOCAL_RESEARCH_DIR = WORKSPACE_ROOT / "fund_research"
 ASSETS_DIR = PROGRAM_DIR / "assets"
