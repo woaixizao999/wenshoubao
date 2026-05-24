@@ -1771,29 +1771,92 @@ def launch_gui() -> None:
 
         def _build_ui(self) -> None:
             root = QWidget()
+            root.setObjectName("root")
+            root.setStyleSheet(
+                """
+                #root {
+                    background-color: #15181e;
+                }
+                QLabel {
+                    background-color: transparent;
+                    color: #d8e0ea;
+                }
+                QPushButton {
+                    background-color: #222a34;
+                    color: #edf5ff;
+                    border: 1px solid #3a4656;
+                    border-radius: 6px;
+                    padding: 7px 14px;
+                    font-weight: 600;
+                }
+                QPushButton:hover {
+                    background-color: #2b3542;
+                    border-color: #5a718b;
+                }
+                QPushButton:pressed {
+                    background-color: #19212b;
+                }
+                QPushButton:disabled {
+                    background-color: #1b2028;
+                    color: #6b7685;
+                    border-color: #2c3440;
+                }
+                QPushButton#primaryButton {
+                    background-color: #0f766e;
+                    color: #f8fffd;
+                    border-color: #14b8a6;
+                }
+                QPushButton#primaryButton:hover {
+                    background-color: #10857c;
+                }
+                QLineEdit, QTextEdit {
+                    background-color: #20252d;
+                    color: #edf5ff;
+                    border: 1px solid #3a4656;
+                    border-radius: 6px;
+                    padding: 6px 8px;
+                    selection-background-color: #155e75;
+                    selection-color: #ffffff;
+                }
+                QLineEdit:focus, QTextEdit:focus {
+                    border-color: #22d3ee;
+                }
+                QMenu {
+                    background-color: #20252d;
+                    color: #edf5ff;
+                    border: 1px solid #3a4656;
+                }
+                QMenu::item:selected {
+                    background-color: #155e75;
+                }
+                """
+            )
             layout = QVBoxLayout(root)
+            layout.setContentsMargins(14, 14, 14, 14)
+            layout.setSpacing(10)
 
             title_bar = QHBoxLayout()
             title = QLabel("稳收宝")
-            title.setStyleSheet("font-size: 26px; font-weight: 700;")
+            title.setStyleSheet("font-size: 30px; font-weight: 800; color: #f8fafc;")
             version_box = QVBoxLayout()
             version_box.setSpacing(0)
             title_mark = QLabel("我爱洗澡")
-            title_mark.setStyleSheet("font-size: 12px; color: #64748b;")
+            title_mark.setStyleSheet("font-size: 12px; color: #7dd3fc;")
             version_box.addWidget(title_mark)
             version = QLabel(APP_VERSION)
-            version.setStyleSheet("font-size: 13px; color: #5b6472;")
+            version.setStyleSheet("font-size: 13px; color: #a7b4c4;")
             version_box.addWidget(version)
             title_bar.addWidget(title)
             title_bar.addStretch()
             title_bar.addLayout(version_box)
             subtitle = QLabel("低风险债券基金自动筛选、评分与报告输出。仅供参考，不构成投资建议。")
-            subtitle.setStyleSheet("color: #5b6472;")
+            subtitle.setStyleSheet("color: #8fa0b3;")
             layout.addLayout(title_bar)
             layout.addWidget(subtitle)
 
             button_bar = QHBoxLayout()
             self.run_btn = QPushButton("抓取并分析")
+            self.run_btn.setObjectName("primaryButton")
             self.run_btn.clicked.connect(self.start_run)
             self.report_btn = QPushButton("打开前十报告")
             self.report_btn.clicked.connect(lambda: self.open_path("report"))
@@ -1811,7 +1874,7 @@ def launch_gui() -> None:
 
             search_bar = QHBoxLayout()
             search_label = QLabel("基金搜索")
-            search_label.setStyleSheet("color: #334155;")
+            search_label.setStyleSheet("color: #93c5fd; font-weight: 600;")
             self.search_input = QLineEdit()
             self.search_input.setPlaceholderText("输入基金名称或代码，支持模糊搜索")
             self.search_input.returnPressed.connect(self.start_search)
@@ -1823,42 +1886,45 @@ def launch_gui() -> None:
             layout.addLayout(search_bar)
 
             self.status = QLabel("准备就绪。点击“抓取并分析”开始。")
-            self.status.setStyleSheet("padding: 8px 0;")
+            self.status.setStyleSheet("padding: 8px 0; color: #e5edf8; font-weight: 600;")
             layout.addWidget(self.status)
 
             self.table = QTableWidget(0, 0)
             self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
             self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
             self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-            self.table.setAlternatingRowColors(False)
+            self.table.setAlternatingRowColors(True)
             self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
             self.table.customContextMenuRequested.connect(self.show_table_menu)
             self.table.setStyleSheet(
                 """
                 QTableWidget {
-                    background-color: #2b2b2b;
-                    color: #f3f4f6;
-                    gridline-color: #4b5563;
-                    selection-background-color: #355f88;
+                    background-color: #1b2028;
+                    alternate-background-color: #202733;
+                    color: #eef6ff;
+                    gridline-color: #344154;
+                    selection-background-color: #155e75;
                     selection-color: #ffffff;
-                    border: 1px solid #4a4a4a;
+                    border: 1px solid #3a4656;
+                    border-radius: 6px;
                 }
                 QTableWidget::viewport {
-                    background-color: #2b2b2b;
-                }
-                QTableWidget::item {
-                    background-color: #2b2b2b;
-                    color: #f3f4f6;
+                    background-color: #1b2028;
                 }
                 QTableWidget::item:selected {
-                    background-color: #355f88;
+                    background-color: #155e75;
                     color: #ffffff;
                 }
                 QHeaderView::section {
-                    background: #353535;
-                    color: #f3f4f6;
-                    padding: 5px;
-                    border: 1px solid #4b5563;
+                    background: #243140;
+                    color: #eaf6ff;
+                    padding: 7px;
+                    border: 1px solid #344154;
+                    font-weight: 700;
+                }
+                QTableCornerButton::section {
+                    background: #243140;
+                    border: 1px solid #344154;
                 }
                 """
             )
@@ -1870,6 +1936,18 @@ def launch_gui() -> None:
             self.log_box.setReadOnly(True)
             self.log_box.setPlaceholderText("运行日志")
             self.log_box.setMinimumHeight(150)
+            self.log_box.setStyleSheet(
+                """
+                QTextEdit {
+                    background-color: #20252d;
+                    color: #edf5ff;
+                    border: 1px solid #3a4656;
+                    border-radius: 6px;
+                    padding: 6px 8px;
+                    font-family: Consolas, "Microsoft YaHei";
+                }
+                """
+            )
             self.log_box.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
             self.log_box.customContextMenuRequested.connect(self.show_log_menu)
             layout.addWidget(self.log_box)
