@@ -73,9 +73,25 @@ CACHE_DIR = PROGRAM_RUNTIME_DIR / "winout"
 LOCAL_RESEARCH_DIR = WORKSPACE_ROOT / "fund_research"
 ASSETS_DIR = PROGRAM_DIR / "assets"
 APP_ICON_RELATIVE = Path("assets") / "win.ico"
+DIAGNOSTIC_LOG = OUTPUT_DIR / "diagnostic.log"
 
 
 Progress = Callable[[str], None]
+
+
+def append_diagnostic_log(message: str) -> None:
+    try:
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        text = f"[{now_text()}] {message.rstrip()}\n"
+        with DIAGNOSTIC_LOG.open("a", encoding="utf-8") as file:
+            file.write(text)
+    except Exception:
+        pass
+
+
+def configure_qt_runtime() -> None:
+    os.environ.setdefault("QT_OPENGL", "software")
+    os.environ.setdefault("QT_QUICK_BACKEND", "software")
 
 
 def bundled_resource(relative_path: Path) -> Path:
@@ -1714,7 +1730,9 @@ def launch_gui() -> None:
 
 
 def launch_gui() -> None:
-    from PySide6.QtCore import QObject, QThread, Qt, Signal, Slot
+    configure_qt_runtime()
+
+    from PySide6.QtCore import QObject, QThread, Qt, Signal, Slot, qInstallMessageHandler
     from PySide6.QtGui import QAction, QIcon
     from PySide6.QtWidgets import (
         QAbstractItemView,
@@ -1733,6 +1751,16 @@ def launch_gui() -> None:
         QVBoxLayout,
         QWidget,
     )
+
+    def gui_excepthook(exc_type: type[BaseException], exc: BaseException, tb: Any) -> None:
+        append_diagnostic_log("Unhandled GUI exception:\n" + "".join(traceback.format_exception(exc_type, exc, tb)))
+
+    def qt_message_handler(mode: Any, context: Any, message: str) -> None:
+        append_diagnostic_log(f"Qt message: {message}")
+
+    sys.excepthook = gui_excepthook
+    qInstallMessageHandler(qt_message_handler)
+    append_diagnostic_log("GUI starting")
 
     class Worker(QObject):
         log = Signal(str)
@@ -1963,6 +1991,16 @@ def launch_gui() -> None:
             self.reject_btn.setEnabled(enabled)
             self.output_btn.setEnabled(enabled)
 
+        def closeEvent(self, event: Any) -> None:
+            if self.thread is not None and self.thread.isRunning():
+                append_diagnostic_log("Close requested while worker is running; close ignored")
+                QMessageBox.information(self, "正在运行", "正在抓取或分析，请等当前任务完成后再关闭软件。")
+                event.ignore()
+                return
+            append_diagnostic_log("Window closing")
+            self.clear_busy_cursor()
+            super().closeEvent(event)
+
         def start_run(self) -> None:
             self.start_task("analysis")
 
@@ -1975,7 +2013,9 @@ def launch_gui() -> None:
 
         def start_task(self, task: str, query: str = "") -> None:
             if self.thread is not None and self.thread.isRunning():
+                append_diagnostic_log(f"Task ignored because worker is running: {task}")
                 return
+            append_diagnostic_log(f"Task starting: {task}; query={query}")
             self.current_task = task
             self.run_btn.setEnabled(False)
             self.search_btn.setEnabled(False)
@@ -2010,6 +2050,7 @@ def launch_gui() -> None:
 
         @Slot()
         def on_thread_finished(self) -> None:
+            append_diagnostic_log("Worker thread finished")
             self.clear_busy_cursor()
             self.worker = None
             self.thread = None
@@ -2021,6 +2062,9 @@ def launch_gui() -> None:
 
         @Slot(object)
         def on_done(self, result: AnalysisResult) -> None:
+            append_diagnostic_log(
+                f"Task done: top={len(result.top10)}, scored={len(result.scored)}, rejected={len(result.rejected)}"
+            )
             self.clear_busy_cursor()
             self.result = result
             self.run_btn.setEnabled(True)
@@ -2034,6 +2078,7 @@ def launch_gui() -> None:
 
         @Slot(str)
         def on_error(self, error_text: str) -> None:
+            append_diagnostic_log("Task error:\n" + error_text)
             self.clear_busy_cursor()
             self.run_btn.setEnabled(True)
             self.search_btn.setEnabled(True)
